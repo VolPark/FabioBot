@@ -1,0 +1,58 @@
+{
+  "name": "powerbi-news-tracker",
+  "version": "1.0.0",
+  "description": "Tracks the latest Power BI and Microsoft Fabric updates, new features, API changes, and best practices from official Microsoft sources.",
+  "author": "FabioBot",
+  "tags": ["powerbi", "fabric", "news", "updates", "knowledge"],
+  "tools": [
+    {
+      "name": "get_powerbi_updates",
+      "description": "Fetch the latest Power BI and Fabric news, feature announcements, and release notes from official Microsoft blogs and documentation",
+      "parameters": {
+        "topic": {
+          "type": "string",
+          "description": "Optional topic filter: 'all', 'powerbi', 'fabric', 'api-changes', 'dax', 'visuals'. Defaults to 'all'",
+          "required": false
+        },
+        "max_items": {
+          "type": "number",
+          "description": "Maximum number of items to return (default: 10, max: 25)",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "get_powerbi_feature_details",
+      "description": "Get detailed information about a specific Power BI or Fabric feature, including documentation links and usage examples",
+      "parameters": {
+        "feature_name": {
+          "type": "string",
+          "description": "Name or keyword of the feature to look up (e.g. 'direct lake', 'copilot', 'PBIR format', 'datamarts')",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "get_fabric_api_changelog",
+      "description": "Get recent changes to the Microsoft Fabric and Power BI REST APIs - new endpoints, deprecations, and breaking changes",
+      "parameters": {
+        "since_days": {
+          "type": "number",
+          "description": "Number of days to look back for changes (default: 30, max: 90)",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "get_dax_reference",
+      "description": "Look up DAX functions, patterns, and best practices. Useful for building measures in semantic models",
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "DAX function name or pattern to look up (e.g. 'CALCULATE', 'time intelligence', 'SUMMARIZECOLUMNS')",
+          "required": true
+        }
+      }
+    }
+  ]
+}
