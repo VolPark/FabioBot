@@ -10,7 +10,7 @@
         "fabric-api",
         "powerbi-news-tracker"
       ],
-      "channels": ["default"]
+      "channels": ["default", "msteams"]
     }
   ]
 }

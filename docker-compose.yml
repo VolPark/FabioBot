@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
     ports:
       - "18789:18789"
+      - "3978:3978"
     volumes:
       - openclaw-config:/home/node/.openclaw
       - ./workspace:/home/node/workspace
