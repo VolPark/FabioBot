@@ -1,0 +1,36 @@
+{
+  "name": "powerbi-workspace-manager",
+  "version": "1.0.0",
+  "description": "Manages Power BI workspace content - lists items, checks permissions, and provides workspace overview.",
+  "author": "FabioBot",
+  "tags": ["powerbi", "fabric", "workspace"],
+  "tools": [
+    {
+      "name": "get_workspace_info",
+      "description": "Get detailed information about the configured Power BI workspace",
+      "parameters": {}
+    },
+    {
+      "name": "list_workspace_items",
+      "description": "List all items (reports, semantic models, dashboards) in the workspace",
+      "parameters": {
+        "item_type": {
+          "type": "string",
+          "description": "Optional filter: 'Report', 'SemanticModel', 'Dashboard', or leave empty for all",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "get_report_pages",
+      "description": "Get pages and visual information for an existing report",
+      "parameters": {
+        "report_id": {
+          "type": "string",
+          "description": "The report ID",
+          "required": true
+        }
+      }
+    }
+  ]
+}

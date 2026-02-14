@@ -1,0 +1,51 @@
+{
+  "name": "powerbi-report-builder",
+  "version": "1.0.0",
+  "description": "Creates Power BI reports from existing semantic models using the Fabric REST API. Analyzes semantic model schema, designs optimal visualizations, and deploys PBIR reports.",
+  "author": "FabioBot",
+  "tags": ["powerbi", "fabric", "reporting", "semantic-model"],
+  "tools": [
+    {
+      "name": "list_semantic_models",
+      "description": "List all semantic models in the configured Power BI workspace",
+      "parameters": {}
+    },
+    {
+      "name": "get_semantic_model_schema",
+      "description": "Get the full schema (tables, columns, measures, relationships) of a semantic model",
+      "parameters": {
+        "semantic_model_id": {
+          "type": "string",
+          "description": "The ID of the semantic model",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "create_report",
+      "description": "Create a new Power BI report from a semantic model with specified visualizations",
+      "parameters": {
+        "semantic_model_id": {
+          "type": "string",
+          "description": "The semantic model to build the report from",
+          "required": true
+        },
+        "report_name": {
+          "type": "string",
+          "description": "Display name for the new report",
+          "required": true
+        },
+        "report_definition": {
+          "type": "string",
+          "description": "JSON string with the PBIR report definition (pages, visuals, filters)",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "list_reports",
+      "description": "List all reports in the workspace",
+      "parameters": {}
+    }
+  ]
+}

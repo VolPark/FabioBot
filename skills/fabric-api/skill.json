@@ -1,0 +1,30 @@
+{
+  "name": "fabric-api",
+  "version": "1.0.0",
+  "description": "Direct access to Microsoft Fabric REST API for advanced operations. Allows executing arbitrary Fabric API calls.",
+  "author": "FabioBot",
+  "tags": ["fabric", "api", "powerbi"],
+  "tools": [
+    {
+      "name": "fabric_api_call",
+      "description": "Execute a Fabric REST API call. Use for any Fabric API endpoint not covered by other skills.",
+      "parameters": {
+        "method": {
+          "type": "string",
+          "description": "HTTP method: GET, POST, PUT, PATCH, DELETE",
+          "required": true
+        },
+        "path": {
+          "type": "string",
+          "description": "API path after https://api.fabric.microsoft.com/v1, e.g. /workspaces/{id}/items",
+          "required": true
+        },
+        "body": {
+          "type": "string",
+          "description": "Optional JSON body for POST/PUT/PATCH requests",
+          "required": false
+        }
+      }
+    }
+  ]
+}
