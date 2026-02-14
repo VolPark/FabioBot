@@ -1,0 +1,99 @@
+{
+  "name": "email-manager",
+  "version": "1.0.0",
+  "description": "Manages email for fabio@sebit.cz via Microsoft Graph API - read inbox, send emails, search messages.",
+  "author": "FabioBot",
+  "tags": ["email", "microsoft-graph", "outlook"],
+  "tools": [
+    {
+      "name": "read_inbox",
+      "description": "Read recent emails from the inbox. Returns subject, sender, date, and preview of each message.",
+      "parameters": {
+        "count": {
+          "type": "number",
+          "description": "Number of emails to fetch (default 10, max 50)",
+          "required": false
+        },
+        "unread_only": {
+          "type": "boolean",
+          "description": "If true, only return unread emails",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "read_email",
+      "description": "Read the full content of a specific email by its ID",
+      "parameters": {
+        "message_id": {
+          "type": "string",
+          "description": "The email message ID",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "send_email",
+      "description": "Send an email from fabio@sebit.cz",
+      "parameters": {
+        "to": {
+          "type": "string",
+          "description": "Recipient email address (comma-separated for multiple)",
+          "required": true
+        },
+        "subject": {
+          "type": "string",
+          "description": "Email subject",
+          "required": true
+        },
+        "body": {
+          "type": "string",
+          "description": "Email body (HTML supported)",
+          "required": true
+        },
+        "cc": {
+          "type": "string",
+          "description": "CC recipients (comma-separated)",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "reply_to_email",
+      "description": "Reply to an existing email",
+      "parameters": {
+        "message_id": {
+          "type": "string",
+          "description": "The original message ID to reply to",
+          "required": true
+        },
+        "body": {
+          "type": "string",
+          "description": "Reply body (HTML supported)",
+          "required": true
+        },
+        "reply_all": {
+          "type": "boolean",
+          "description": "If true, reply to all recipients",
+          "required": false
+        }
+      }
+    },
+    {
+      "name": "search_emails",
+      "description": "Search emails by keyword in subject, body, or sender",
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Search query (searches subject, body, sender)",
+          "required": true
+        },
+        "count": {
+          "type": "number",
+          "description": "Number of results to return (default 10)",
+          "required": false
+        }
+      }
+    }
+  ]
+}
