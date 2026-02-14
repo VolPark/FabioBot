@@ -1,0 +1,20 @@
+# Environment files with secrets
+.env
+
+# OpenClaw data
+workspace/
+openclaw-config/
+
+# SSL certificates
+certbot/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Logs
+*.log
+logs/
