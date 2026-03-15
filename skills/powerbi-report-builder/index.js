@@ -47,7 +47,13 @@ async function getAccessToken() {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Azure AD token error: ${response.status} - ${error}`);
+    const status = response.status;
+    if (status === 401 || status === 403) {
+      throw new Error(
+        `Azure AD authentication failed (${status}). Check AZURE_CLIENT_SECRET — it may have expired. Regenerate it in Azure Portal > App registrations.`
+      );
+    }
+    throw new Error(`Azure AD token error (${status}). Check AZURE_TENANT_ID and AZURE_CLIENT_ID values.`);
   }
 
   const data = await response.json();
@@ -60,9 +66,9 @@ async function getAccessToken() {
 }
 
 /**
- * Make an authenticated request to the Fabric/Power BI REST API
+ * Make an authenticated request to the Fabric/Power BI REST API with retry logic
  */
-async function fabricApiRequest(method, path, body = null) {
+async function fabricApiRequest(method, path, body = null, retries = 2) {
   const token = await getAccessToken();
   const baseUrl = "https://api.fabric.microsoft.com/v1";
 
@@ -78,15 +84,43 @@ async function fabricApiRequest(method, path, body = null) {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${baseUrl}${path}`, options);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(`${baseUrl}${path}`, options);
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Fabric API error: ${response.status} - ${error}`);
+    if (response.ok) {
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    const status = response.status;
+    const errorText = await response.text();
+
+    // Retry on transient errors (429 rate limit, 5xx server errors)
+    if ((status === 429 || status >= 500) && attempt < retries) {
+      const delay = (attempt + 1) * 1000;
+      await new Promise((r) => setTimeout(r, delay));
+      continue;
+    }
+
+    // Provide user-friendly error messages
+    if (status === 401) {
+      tokenCache = { token: null, expiresAt: 0 }; // clear cached token
+      throw new Error("Authentication token rejected (401). The token may have been revoked. Try again.");
+    }
+    if (status === 403) {
+      throw new Error(
+        `Access denied (403) to ${path}. The Service Principal may not have permission for this workspace. ` +
+        "Add it as Admin/Member in the Power BI workspace settings."
+      );
+    }
+    if (status === 404) {
+      throw new Error(`Resource not found (404): ${path}. Check that the workspace ID and item IDs are correct.`);
+    }
+    if (status === 429) {
+      throw new Error("Rate limit exceeded (429). Too many API requests. Wait a moment and try again.");
+    }
+    throw new Error(`Fabric API error (${status}) on ${method} ${path}: ${errorText.substring(0, 200)}`);
   }
-
-  const text = await response.text();
-  return text ? JSON.parse(text) : null;
 }
 
 /**
@@ -95,7 +129,7 @@ async function fabricApiRequest(method, path, body = null) {
 async function listSemanticModels() {
   const workspaceId = process.env.POWERBI_WORKSPACE_ID;
   if (!workspaceId) {
-    throw new Error("POWERBI_WORKSPACE_ID not configured");
+    throw new Error("POWERBI_WORKSPACE_ID not configured in .env");
   }
 
   const result = await fabricApiRequest(
@@ -103,7 +137,7 @@ async function listSemanticModels() {
     `/workspaces/${workspaceId}/semanticModels`
   );
 
-  return result.value.map((model) => ({
+  return (result.value || []).map((model) => ({
     id: model.id,
     name: model.displayName,
     description: model.description || "",
@@ -114,9 +148,11 @@ async function listSemanticModels() {
  * Get semantic model schema (tables, columns, measures, relationships)
  */
 async function getSemanticModelSchema(semanticModelId) {
+  if (!semanticModelId) {
+    throw new Error("semantic_model_id is required");
+  }
   const workspaceId = process.env.POWERBI_WORKSPACE_ID;
 
-  // Get model definition via XMLA or REST API
   const definition = await fabricApiRequest(
     "POST",
     `/workspaces/${workspaceId}/semanticModels/${semanticModelId}/getDefinition`
@@ -129,6 +165,10 @@ async function getSemanticModelSchema(semanticModelId) {
  * Create a new report from a semantic model
  */
 async function createReport(semanticModelId, reportName, reportDefinition) {
+  if (!semanticModelId) throw new Error("semantic_model_id is required");
+  if (!reportName) throw new Error("report_name is required");
+  if (!reportDefinition) throw new Error("report_definition is required");
+
   const workspaceId = process.env.POWERBI_WORKSPACE_ID;
 
   // Build PBIR definition pointing to the semantic model
@@ -148,9 +188,7 @@ async function createReport(semanticModelId, reportName, reportDefinition) {
   };
 
   // Base64 encode the definitions
-  const pbirPayload = Buffer.from(JSON.stringify(pbirDefinition)).toString(
-    "base64"
-  );
+  const pbirPayload = Buffer.from(JSON.stringify(pbirDefinition)).toString("base64");
   const reportPayload = Buffer.from(reportDefinition).toString("base64");
 
   const platformConfig = {
@@ -165,9 +203,7 @@ async function createReport(semanticModelId, reportName, reportDefinition) {
       logicalId: crypto.randomUUID(),
     },
   };
-  const platformPayload = Buffer.from(JSON.stringify(platformConfig)).toString(
-    "base64"
-  );
+  const platformPayload = Buffer.from(JSON.stringify(platformConfig)).toString("base64");
 
   const body = {
     displayName: reportName,
@@ -216,7 +252,7 @@ async function listReports() {
     `/workspaces/${workspaceId}/reports`
   );
 
-  return result.value.map((report) => ({
+  return (result.value || []).map((report) => ({
     id: report.id,
     name: report.displayName,
     description: report.description || "",

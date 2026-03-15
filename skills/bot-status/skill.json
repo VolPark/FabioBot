@@ -1,0 +1,24 @@
+{
+  "name": "bot-status",
+  "version": "1.0.0",
+  "description": "Monitoring skill for FabioBot. Checks health of Azure AD auth, Fabric API connectivity, and workspace status. Provides bot info and workspace summary.",
+  "author": "FabioBot",
+  "tags": ["monitoring", "health", "status", "diagnostics"],
+  "tools": [
+    {
+      "name": "check_health",
+      "description": "Check the health of all bot dependencies: Azure AD authentication, Microsoft Fabric API connectivity, and Power BI workspace access. Returns a status report.",
+      "parameters": {}
+    },
+    {
+      "name": "get_workspace_summary",
+      "description": "Get a quick summary of the Power BI workspace: number of reports, semantic models, and dashboards.",
+      "parameters": {}
+    },
+    {
+      "name": "get_bot_info",
+      "description": "Get information about the bot configuration: version, configured workspace, LLM model, and available skills.",
+      "parameters": {}
+    }
+  ]
+}
